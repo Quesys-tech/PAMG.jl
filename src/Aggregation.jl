@@ -72,13 +72,65 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
         for i = 1:n
             #|aᵢᵢ| > 5∑_{i≂̸j}|aᵢⱼ| then i∈G₀
             sum_aᵢⱼ = sum(abs, @view a[i, :]) - abs(a[i, i])
-            if abs(a[i, i]) > 5 * sum_aᵢⱼ
-                push!(G, 0, i)
-            end
+            abs(a[i, i]) > 5sum_aᵢⱼ && push!(G, 0, i)
         end
     end
     U = trues(n)
     for i in Aggregation(G, 0)
         U[i] = false
     end
+    n_c = 0
+    num_S = Vector{Int}(undef, n) #number of elements in Sᵢ
+
+    # calculate coupling threshold 
+    # aᵢⱼ < β min_{aᵢₖ < 0} aᵢₖ (aᵢᵢ > 0)
+    # aᵢⱼ > β max_{aᵢₖ > 0} aᵢₖ (aᵢᵢ < 0)
+    S_thresh = zeros(n)
+    for k = 1:n, i = 1:n
+        if a[i, i] > 0
+            if a[i, k] < 0
+                S_thresh[i] = min(a[i, k], S_thresh[i])
+            end
+        else
+            if a[i, k] > 0
+                S_thresh[i] = max(a[i, k], S_thresh[i])
+            end
+        end
+    end
+    S_thresh .*= β
+
+    while maximum(U) #while U≂̸∅
+        n_c += 1
+
+        num_S .= n + 1
+        for i in 1:n
+            !U[i] && continue #ensure i ∈ U
+            num_S[i] = 0
+            for j = 1:n
+                (!U[i] || j == i) && continue #ensure j∈ U\{i}
+                if (a[i, i] > 0 && a[i, j] < S_thresh[i]) || (a[i, i] < 0 && a[i, j] > S_thresh[i])
+                    num_S[i] += 1
+                end
+            end
+        end
+        i = argmin(num_S)
+        push!(G, n_c, i)
+
+        if num_S[i] != 0
+            Sᵢ = Dict{Int,T}()
+            for j = 1:n
+                (!U[i] || j == i) && continue #ensure j∈ U\{i}
+                if (a[i, i] > 0 && a[i, j] < S_thresh[i]) || (a[i, i] < 0 && a[i, j] > S_thresh[i])
+                    Sᵢ[j] = a[i, j]
+                end
+            end
+            j = argmin(Sᵢ)
+            push!(G, n_c, j)
+        end
+
+        for j in Aggregation(G, n_c)# U ← U \ G_n_c
+            U[j] = false
+        end
+    end
+    return G
 end

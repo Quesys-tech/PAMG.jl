@@ -21,3 +21,24 @@
         @test isempty(symdiff(G_gt[i], Gᵢ))
     end
 end
+
+@testset "PairWiseAggregationTest" begin
+    a = [-1 1 0 0 0; -1 2 -1 0 0; 0 1 -2 1 0; 0 0 -1 2 -1; 0 0 0 0 1.0]
+    b = [0.25, 0, 0, 0, 1]
+
+    G_gt = Dict{Int,Vector{Int}}(
+        0 => [5],
+        1 => [1, 2],
+        2 => [3, 4]
+    ) #ground truth
+
+    G = pairwise_aggregation(a, 0.25, true)
+
+    for i = 0:2
+        Gᵢ = Int[]
+        for j in Aggregation(G, i)
+            push!(Gᵢ, j)
+        end
+        @test isempty(symdiff(G_gt[i], Gᵢ))
+    end
+end
