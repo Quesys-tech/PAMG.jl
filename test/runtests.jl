@@ -3,5 +3,5 @@ using Test
 
 @testset "PAMG.jl" begin
     # Write your tests here.
-    include("Aggregations.jl")
+    include("Aggregation.jl")
 end
