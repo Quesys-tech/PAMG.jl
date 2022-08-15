@@ -12,7 +12,7 @@ PA-AMG presented by Notay[[1]](#references).
 
 ## About PA-AMG
 Multigrid methods are algorithms to solve large systems of linear equations faster than conventional iterative algorithms (Gauss-Seidel, Conjugate Gradient, etc.) utilizing coarse and fine grids, which can be classified as geometric multigrid and algebraic multigrid (AMG). Geometric multigrid uses geometric information from discretized problems to set up coarse grids. Geometric multigrid is available only for structured gird. 
-However, An unstructured grid, in which we cannot utilize geometric multigrid methods, is widely used for many numerical methods to express complicated geometries. Algebraic multigrid methods set up coarse grids from the information of coefficient matrices.
+However, An unstructured grid, in which we cannot utilize geometric multigrid methods, is widely used for many numerical methods to express complicated geometries. Algebraic multigrid methods, which set up coarse grids from the information of coefficient matrices, are suitable for not only unstructured grids but also structured grids.
 PA-AMG uses pairwise matching to set up the aggregation of unknowns to construct coarse grids. PA-AMG ensures relatively lower setup computational cost and memory usage.
 
 ## References
