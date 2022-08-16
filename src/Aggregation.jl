@@ -136,3 +136,21 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
     end
     return G, n_c
 end
+
+function prolongationmatrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
+    n = length(G.list)
+    nₘ = length(G.head) - 1
+    @assert 0 < nₘ <= n
+
+    is = Int[]
+    js = Int[]
+    vs = T[]
+    for j = 1:nₘ
+        for i in Aggregation(G, j)
+            push!(is, i)
+            push!(js, j)
+            push!(vs, one(T))
+        end
+    end
+    sparse(is, js, vs, n, nₘ)
+end
