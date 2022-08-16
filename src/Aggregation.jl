@@ -2,25 +2,29 @@ struct Aggregations
     head::Vector{Int}
     list::Vector{Int}
     tail::Vector{Int}
+    len::Vector{Int} #長さ
     function Aggregations(n)
         head = Vector{Int}(undef, 0)
         list = zeros(Int, n)
         tail = Vector{Int}(undef, 0)
-        new(head, list, tail)
+        len = Vector{Int}(undef, 0)
+        new(head, list, tail, len)
     end
 end
 
 struct Aggregation
     G::Aggregations
     i::Int #注意! 0 based index
-    function Aggregation(G, i)
+    function Aggregation(G::Aggregations, i::Int)
         @assert length(G.head) == length(G.tail)
         @assert 0 <= i
         if i + 1 > length(G.head) #新たなaggretation
             l_o = length(G.head)#追加前の長さ
             resize!(G.head, i + 1)
             resize!(G.tail, i + 1)
+            resize!(G.len, i + 1)
             G.head[l_o+1:i+1] .= 0 #0埋め
+            G.len[l_o+1:i+1] .= 0 #0埋め
         end
         new(G, i)
     end
@@ -56,11 +60,17 @@ function Base.push!(G::Aggregation, i::Int)
         G.G.list[i] = 0
         G.G.tail[G.i+1] = i
     end
+    G.G.len[G.i+1] += 1
 end
 
 function Base.push!(G::Aggregations, i::Int, j::Int)
     push!(Aggregation(G, i), j)
 end
+
+function Base.length(G::Aggregation)
+    return G.G.len[G.i+1]
+end
+
 
 function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
     n = size(a)[1]
