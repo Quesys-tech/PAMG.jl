@@ -75,6 +75,8 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
             abs(a[i, i]) > 5sum_aᵢⱼ && push!(G, 0, i)
         end
     end
+
+    #U ← {1...n} \ G₀
     U = trues(n)
     for i in Aggregation(G, 0)
         U[i] = false
@@ -132,5 +134,5 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
             U[j] = false
         end
     end
-    return G
+    return G, n_c
 end
