@@ -18,4 +18,5 @@ PA-AMG uses pairwise matching to set up the aggregation of unknowns to construct
 This package requires **Julia 1.7 and later.**
 
 ## References
-1. Notay, Yvan. "An aggregation-based algebraic multigrid method." Electronic transactions on numerical analysis 37.6 (2010): 123-146. [pdf](http://etna.mcs.kent.edu/vol.37.2010/pp123-146.dir/pp123-146.pdf)
+1. Notay, Yvan. "An aggregation-based algebraic multigrid method." Electronic transactions on numerical analysis 37.6 (2010): 123-146. [(pdf)](http://etna.mcs.kent.edu/vol.37.2010/pp123-146.dir/pp123-146.pdf)
+2. Matsunaga, Takuya et al. "Solution of pressure Poisson equation in particle method using algebraic multigrid method." Transactions of JSCES, 20160012 (2016) in Japanese. [(pdf)](https://www.jstage.jst.go.jp/article/jsces/2016/0/2016_20160012/_pdf)
