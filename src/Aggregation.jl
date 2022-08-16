@@ -5,9 +5,10 @@ struct Aggregations
     len::Vector{Int} #長さ
     function Aggregations(n)
         head = Vector{Int}(undef, 0)
-        list = zeros(Int, n)
+        list = Vector{Int}(undef, n)
         tail = Vector{Int}(undef, 0)
         len = Vector{Int}(undef, 0)
+        list .= 0
         new(head, list, tail, len)
     end
 end
@@ -155,6 +156,9 @@ function prolongation_matrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
     is = Int[]
     js = Int[]
     vs = T[]
+    sizehint!(is, n)
+    sizehint!(js, n)
+    sizehint!(vs, n)
     for j = 1:nₘ
         for i in Aggregation(G, j)
             push!(is, i)
@@ -174,15 +178,21 @@ function double_pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=f
     a_m = P_ast' * a * P_ast
     G_ast2, n_c = pairwise_aggregation(a_m, β)
 
-    G = Aggregations(n)
-    for i = 0:n_c
-        sum_G = Set{Int}()
+    G_vec = Vector{Int}(undef, n)
+    for i = 1:n_c
         for j in Aggregation(G_ast2, i)
-            union!(sum_G, Aggregation(G_ast, j))
+            for k in Aggregation(G_ast, j)
+                G_vec[k] = i
+            end
         end
-        for j in sum_G
-            push!(G, i, j)
-        end
+    end
+    for i in Aggregation(G_ast, 0)
+        G_vec[i] = 0
+    end
+
+    G = Aggregations(n)
+    for j = 1:n
+        push!(G, G_vec[j], j)
     end
     return G, n_c
 end
