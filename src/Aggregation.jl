@@ -120,7 +120,7 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
             !U[i] && continue #ensure i ∈ U
             num_S[i] = 0
             for j = 1:n
-                (!U[i] || j == i) && continue #ensure j∈ U\{i}
+                (!U[j] || j == i) && continue #ensure j∈ U\{i}
                 if (a[i, i] > 0 && a[i, j] < S_thresh[i]) || (a[i, i] < 0 && a[i, j] > S_thresh[i])
                     num_S[i] += 1
                 end
@@ -132,7 +132,7 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
         if num_S[i] != 0
             Sᵢ = Dict{Int,T}()
             for j = 1:n
-                (!U[i] || j == i) && continue #ensure j∈ U\{i}
+                (!U[j] || j == i) && continue #ensure j∈ U\{i}
                 if (a[i, i] > 0 && a[i, j] < S_thresh[i]) || (a[i, i] < 0 && a[i, j] > S_thresh[i])
                     Sᵢ[j] = a[i, j]
                 end
