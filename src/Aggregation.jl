@@ -73,6 +73,11 @@ function Base.length(G::Aggregation)
 end
 
 
+"""
+    pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
+
+execute pair wise aggregation
+"""
 function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
     n = size(a)[1]
     @assert size(a) == (n, n)
@@ -138,7 +143,7 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
                 end
             end
             if a[i, i] > 0
-            j = argmin(Sᵢ)
+                j = argmin(Sᵢ)
             else
                 j = argmax(Sᵢ)
             end
@@ -152,6 +157,11 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
     return G, n_c
 end
 
+"""
+    prolongation_matrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
+
+generate prolongation matrix P
+"""
 function prolongation_matrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
     n = length(G.list)
     nₘ = length(G.head) - 1
@@ -173,6 +183,11 @@ function prolongation_matrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
     sparse(is, js, vs, n, nₘ)
 end
 
+"""
+    double_pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
+
+double pairwise aggregation 
+"""
 function double_pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
     n = size(a)[1]
     @assert size(a) == (n, n)
