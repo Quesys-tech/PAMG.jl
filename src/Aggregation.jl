@@ -137,7 +137,11 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
                     Sᵢ[j] = a[i, j]
                 end
             end
+            if a[i, i] > 0
             j = argmin(Sᵢ)
+            else
+                j = argmax(Sᵢ)
+            end
             push!(G, n_c, j)
         end
 
