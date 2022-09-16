@@ -1,15 +1,13 @@
 struct Aggregations
     head::Vector{Int}
     list::Vector{Int}
-    tail::Vector{Int}
     len::Vector{Int} #長さ
-    function Aggregations(n)
+    function Aggregations(n::Integer)
         head = Vector{Int}(undef, 0)
         list = Vector{Int}(undef, n)
-        tail = Vector{Int}(undef, 0)
         len = Vector{Int}(undef, 0)
         list .= 0
-        new(head, list, tail, len)
+        new(head, list,  len)
     end
 end
 
@@ -17,12 +15,10 @@ struct Aggregation
     G::Aggregations
     i::Int #注意! 0 based index
     function Aggregation(G::Aggregations, i::Int)
-        @assert length(G.head) == length(G.tail)
         @assert 0 <= i
         if i + 1 > length(G.head) #新たなaggretation
             l_o = length(G.head)#追加前の長さ
             resize!(G.head, i + 1)
-            resize!(G.tail, i + 1)
             resize!(G.len, i + 1)
             G.head[l_o+1:i+1] .= 0 #0埋め
             G.len[l_o+1:i+1] .= 0 #0埋め
@@ -51,16 +47,10 @@ end
 
 Base.eltype(::Type{Aggregation}) = Int
 
-function Base.push!(G::Aggregation, i::Int)
-    @assert 1 <= i <= length(G.G.list) #iは有効な範囲
-    if 1 <= G.G.head[G.i+1] <= length(G.G.list) #Gᵢ は空集合でない   
-        G.G.list[G.G.tail[G.i+1]] = i #末尾に追加 
-        G.G.tail[G.i+1] = i
-    else
-        G.G.head[G.i+1] = i
-        G.G.list[i] = 0
-        G.G.tail[G.i+1] = i
-    end
+function Base.push!(G::Aggregation, j::Int)
+    @assert 1 <= j <= length(G.G.list) #iは有効な範囲
+    G.G.list[j] = G.G.head[G.i+1]
+    G.G.head[G.i+1] = j
     G.G.len[G.i+1] += 1
 end
 
@@ -73,6 +63,11 @@ function Base.length(G::Aggregation)
 end
 
 
+"""
+    pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
+
+execute pair wise aggregation
+"""
 function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
     n = size(a)[1]
     @assert size(a) == (n, n)
@@ -137,7 +132,11 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
                     Sᵢ[j] = a[i, j]
                 end
             end
-            j = argmin(Sᵢ)
+            if a[i, i] > 0
+                j = argmin(Sᵢ)
+            else
+                j = argmax(Sᵢ)
+            end
             push!(G, n_c, j)
         end
 
@@ -148,6 +147,11 @@ function pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) w
     return G, n_c
 end
 
+"""
+    prolongation_matrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
+
+generate prolongation matrix P
+"""
 function prolongation_matrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
     n = length(G.list)
     nₘ = length(G.head) - 1
@@ -169,6 +173,11 @@ function prolongation_matrix(G::Aggregations, T=Float64)::SparseMatrixCSC{T,Int}
     sparse(is, js, vs, n, nₘ)
 end
 
+"""
+    double_pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
+
+double pairwise aggregation 
+"""
 function double_pairwise_aggregation(a::AbstractMatrix{T}, β::T, finest::Bool=false) where {T}
     n = size(a)[1]
     @assert size(a) == (n, n)
